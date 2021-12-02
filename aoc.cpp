@@ -16,29 +16,32 @@ int main()
     char dash,c, str[100];
     v.clear();
     m.clear();
-    int ans = 0;
+    long long ans = 0, num = 0;
+    string cm;
     int pre = -1;
+    int x=0, y =0, aim = 0;
 
-    while( cin>>start )
+    while( cin>>cm>> num )
     {
-        v.push_back(start);
+       if(cm=="forward")
+       {
+           x+=num;
+           y+=aim*num;
+       }
+       if(cm=="down")
+       {
+        //    y+=num;
+            aim += num;
+       }
+       if(cm=="up")
+       {
+           aim -= num;
+        //    y-=num;
+       }
     }
  
-    for(int i=2;i<v.size();i++)
-    {
-        int value = v[i-2]+v[i-1]+v[i];
-        if(pre==-1)
-        {
-            pre=value;
-            continue;
-        }
-        if(value > pre)
-        {
-            ans++;
-        }
-        pre = value;
-    }
-    cout<<ans<<endl;
+    
+    cout<<x*y<<endl;
     
     
 
