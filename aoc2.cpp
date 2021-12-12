@@ -5,116 +5,61 @@
 #include <cstring>
 #include <string>
 #include <stack>
+#include <cctype>
 #include <queue>
 using namespace std;
 
-stack<char> o;
+map<string, vector<string> > m;
 
+int res = 0;
 
-char m[12][12];
-
-/*
-
-0
-5483143223
-2745854711
-5264556173
-6141336146
-6357385478
-4167524645
-2176841721
-6882881134
-4846848554
-5283751526
-
-10
-0481112976
-0031112009
-0041112504
-0081111406
-0099111306
-0093511233
-0442361130
-5532252350
-0532250600
-0032240000
-
-*/
-int bx[8] = {0,1,-1, 0, 1, -1, 1, -1};
-int by[8] = {1,0,0 ,-1, 1, -1, -1, 1}; 
-int count_light()
+void dfs(string cur, vector<string> path)
 {
-    int ans = 0;
-    for(int i=0;i<10;i++)
+    if(cur =="end")
     {
-        for(int j=0; j<10; j++)
+        res++;
+
+        // for(int i=0;i<path.size(); i++)
+        // {
+        //     cout<<path[i]<<" ";
+        // }
+        // cout<<endl;
+        return;
+    }
+    path.push_back(cur);
+
+    int flag = 0;
+    map<string, int> visit;
+    for(int i=0; i<path.size(); i++)
+    {
+        if(islower(path[i][0]))
         {
-            if(m[i][j]=='0')
-                ans++;
+            if(visit[path[i]]==1)
+                flag = 1;
         }
+        visit[path[i]]++;
     }
-    return ans;
-}
-void light(int i, int j)
-{
-    if(i<0 || i >=10 ||j <0 || j >=10)
-        return;
-    if(m[i][j]=='9')
+    for(int i=0; i <m[cur].size(); i++)
     {
-        m[i][j] ='0';
-        for(int it = 0; it<8;it++)
-        {
-            light(i+bx[it], j+by[it]);
-        }
-    }
-    else if(m[i][j] =='0')
-    {
-        return;
-    }
-    else
-    {
-        m[i][j] +=1;
-        return;
-    }
+        string t = m[cur][i];
+        if(t=="start")
+            continue;
 
-}
-
-void step1()
-{
-    queue< pair<int,int> > lt;
-    for(int i=0;i<10;i++)
-    {
-        for(int j=0;j<10;j++)
+        if( islower(t[0]) )
         {
-            if(m[i][j]=='9')
+            if(flag ==1 && visit[t]<1)
             {
-                pair<int, int> p;
-                p.first = i;
-                p.second = j;
-                lt.push(p);
+                dfs(t, path);
             }
-            else
+            else if(flag ==0 && visit[t]<2)
             {
-                m[i][j]+=1;
+                dfs(t, path);
             }
-            
         }
-    }
-
-    while(!lt.empty())
-    {
-        pair<int,int> t = lt.front();
-        lt.pop();
-        light(t.first, t.second);
-    }
-}
-
-void print()
-{
-    cout<<"new step"<<endl;
-    for(int i=0;i<10;i++)
-    {
-        cout<<m[i]<<endl;
+        else
+        {
+            dfs(t, path);
+        }
     }
     return;
 }
@@ -124,29 +69,42 @@ int main()
     freopen("input.txt", "r", stdin );
     freopen("output.txt", "w", stdout);
    
-    for(int i=0;i<10;i++)
-    {
-        for(int j=0;j<10;j++)
-        {
-            scanf(" %c", &(m[i][j]));
-        }
-    }
+   char str[11], st[101], ed[101];
+   while(scanf("%s",str)==1)
+   {
 
-    int res =0 ;
-     for(int step =1; step <=1000; step++)
-     {
-        step1();
-        int dd = count_light();
-        if(dd==100)
-        {
-            cout<<step<<endl;
-            break;
-        }
-        // print();
-     }
+       int flag = 0;
+       string a = "", b= "";
+       for(int i =0; i< strlen(str); i++)
+       {
+            if(str[i]!='-'&&flag ==0)
+            {
+                a+= str[i];     
+              
+            } 
+            else if (str[i]=='-')
+            {
+                flag = 1;
+                continue;
+            }
+            else
+            {
+                b+=str[i];
+            }
 
-     cout<<res<<endl;
+       }
 
+        m[a].push_back(b);
+        m[b].push_back(a);
+
+       
+       
+   }
+
+        vector<string> em;
+        dfs("start", em);
+        
+        cout<<res<<endl;
     
     
     
