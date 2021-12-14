@@ -9,140 +9,107 @@
 #include <queue>
 using namespace std;
 
-
-
-int mt[2001][2001];
+vector<char> l;
 char str[1001];
-int ins=0;
-int m,n;
-int xy=0, line = 0;
-
-void convert(char ls[])
+map<pair<char, char>, long long> btw;
+map<pair<char, char>, long long> tmp;
+void up(char a, char b)
 {
-    int len = strlen(ls);
-    if(ls[0]=='x')
-    xy = 0;
-    else xy = 1;
-    line = 0;
-    for(int i=2;i<len;i++)
-    {
-        line=line*10 + ls[i]-'0';
-    }
+    // if(a > b)
+    // swap(a,b);
+    pair<char, char> p (a,b);
+    btw[p]++;
 }
 
-void fold()
+void down(char a, char b)
 {
-    if(xy==1)
-    {
-        int a, b;
-        for(int i=0;i<=m;i++)
-        {
-            a= i;
-            for(int j=line+1;j<=n;j++)
-            {
-               
-                b = line - (j - line); 
-                mt[a][b]= max(mt[a][b], mt[i][j]);
-                mt[i][j] = 0;
-            }
-        }
-       n = line - 1;
-    }
-    else
-    {
-        int a, b;
-        for(int i=line+1;i<=m;i++)
-        {
-            a= line*2 - i;
-            for(int j=0;j<=n;j++)
-            {
-               
-                b = j; 
-
-                // cout<<a<<"ab"<<b<<"|"<<i<<"ij"<<j<<";";
-                mt[a][b]= max(mt[a][b], mt[i][j]);
-                mt[i][j] = 0;
-            }
-        }
-        m = line - 1;
-       
-    }
+    // if(a > b)
+    // swap(a,b);
+    pair<char, char> p(a,b);
+    btw[p]--;
 }
+map< pair<char, char>, char> insert;
 
-int check()
+
+void move()
 {
-    int ans = 0;
-    for(int i=0; i<=m;i++)
-    {
-        for(int j=0;j<=n;j++)
-        {
-            if(mt[i][j]==1)
-            {
-                ans++;
-                // cout<<'#';
-            }
-            else
-            {
-                // cout<<'.';
-            }
-        }
-        // cout<<endl;
-    }
-    return ans;
-}
+    tmp.clear();
+    for (auto num: btw) {
+        pair<char, char> t = num.first;
+        
+        if( insert.find(t) == insert.end() )
+            continue;
+        char ins = insert[t];
+        pair<char, char>p1 (num.first.first, ins), p2(ins, num.first.second);
 
+        tmp[p1]+= btw[t];
+        tmp[p2]+= btw[t];
+
+        // cout<<num.first.first<<","<<num.first.second;
+        // cout<<"insert"<<ins<<endl;
+        
+    }
+    btw = tmp;
+}
+    char be ;
+    char ed ;
+long long ans;
 void print()
 {
-   
-    for(int j=0;j<=n;j++)
+
+    map<char, long long> ct;
+    ct[be] = 1;
+    ct[ed] = 1;
+    for(auto num: btw)
     {
-        for(int i=0; i<=m;i++)
-        {
-            if(mt[i][j]==1)
-            {
-              
-                cout<<'#';
-            }
-            else
-            {
-                cout<<'.';
-            }
-        }
-        cout<<endl;
+        char a = num.first.first;
+        char b = num.first.second;
+        long long c = num.second;
+        // cout<<num.first.first<<","<<num.first.second<<":"<<num.second<<endl;
+        ct[a] += c;
+        ct[b] += c;
     }
+
+    long long mx=0, mn=10000000000000;
+    for(auto v: ct)
+    {
+        cout<<v.first<<":"<<v.second<<endl;
+        mx = max(mx, v.second);
+        mn = min(mn, v.second);
+    }
+    ans = (mx- mn)/2;
 }
 int main()
 {
 
     freopen("input.txt", "r", stdin );
     freopen("output.txt", "w", stdout);
-   memset(mt, 0, sizeof(mt));
-   int a,b;
-   n = 0, m = 0;
-   while(scanf("%d,%d", &a,&b)==2)
-   {
-    //    cout<<a<<" "<<b<<endl;
-    m = max(a, m);
-    n = max(b, n);
-       mt[a][b]=1;
-   }
+    
+    
+    scanf("%s", str);
+    be = str[0];
+     ed = str[strlen(str)-1];
+    cout<<be<<" "<<ed<<endl;
+    for(int i=0;i<strlen(str)-1; i++)
+    {
+        up(str[i], str[i+1]);
+    }
 
-
-    cout<<m<<" "<<n<<endl;
-    
-   while(scanf("%*s %*s %s",str)==1)
-   {
-    convert(str);
-    cout<<xy<<" "<<line<<endl;
-    
-    fold();
-    print();
-    cout<<m<<"<mn>"<<n<<endl;
-    cout<<check()<<endl;;
-    
-   }
+    char ss[111];
+    while(scanf("%s %*s %s",str,ss)==2)
+    {
+        // cout<<str<<" "<<ss<<endl;
+        pair<char, char> p(str[0], str[1]);
+        insert[p] = ss[0];
+    }
   
-    
+    for(int step =1 ; step<=40;step++)
+    {
+        cout<<"Step:"<<step<<endl;
+        move();
+        print();
+    }
+    cout<<ans<<endl;
 
     return 0;
 }
